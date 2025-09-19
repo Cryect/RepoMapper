@@ -13,7 +13,6 @@ from utils import Tag
 from dataclasses import dataclass
 import diskcache
 import networkx as nx
-import diskcache
 from grep_ast import TreeContext
 from utils import count_tokens, read_text, Tag
 from scm import get_scm_fname
@@ -31,7 +30,6 @@ class FileReport:
 
 # Constants
 CACHE_VERSION = 1
-import os
 
 TAGS_CACHE_DIR = os.path.join(os.getcwd(), f".repomap.tags.cache.v{CACHE_VERSION}")
 SQLITE_ERRORS = (sqlite3.OperationalError, sqlite3.DatabaseError)
@@ -187,6 +185,7 @@ class RepoMap:
         try:
             from grep_ast import filename_to_lang
             from grep_ast.tsl import get_language, get_parser
+            from tree_sitter import QueryCursor
         except ImportError:
             print("Error: grep-ast is required. Install with: pip install grep-ast")
             sys.exit(1)
@@ -219,7 +218,8 @@ class RepoMap:
                 return []
             
             query = language.query(query_text)
-            captures = query.captures(tree.root_node)
+            cursor = QueryCursor(query)
+            captures = cursor.captures(tree.root_node)
             
             tags = []
             # Process captures as a dictionary
